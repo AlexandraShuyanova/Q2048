@@ -7,3 +7,4 @@ release
 ui_*
 moc_*
 .vs
+enc_temp_folder
