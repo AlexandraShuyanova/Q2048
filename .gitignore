@@ -1,0 +1,9 @@
+debug
+release
+.qmake.stash
+*.user
+*.sln
+*.vcxproj*
+ui_*
+moc_*
+.vs
