@@ -31,6 +31,18 @@ Widget::Widget(QWidget* parent) :
         "color:rgb(250, 255, 201);");
 
     connect(ui->startBtn, &QPushButton::clicked, this, &Widget::randCells);
+
+    CELL_COLORS.insert(2, CELL_2);
+    CELL_COLORS.insert(4, CELL_4);
+    CELL_COLORS.insert(8, CELL_8);
+    CELL_COLORS.insert(16, CELL_16);
+    CELL_COLORS.insert(32, CELL_32);
+    CELL_COLORS.insert(64, CELL_64);
+    CELL_COLORS.insert(128, CELL_128);
+    CELL_COLORS.insert(256, CELL_256);
+    CELL_COLORS.insert(512, CELL_512);
+    CELL_COLORS.insert(1024, CELL_1024);
+    CELL_COLORS.insert(2048, CELL_2048);
 }    
 
 
@@ -44,6 +56,7 @@ void Widget::paintEvent(QPaintEvent* e) {
 
 void Widget::keyPressEvent(QKeyEvent* event) {
     if (isGameStarted) {
+        bool cellChanged = false;
 
         if (event->key() == Qt::Key_S) {
             for (int i = CELL_QUANTITY-2; i > -1; i--) {
@@ -56,15 +69,33 @@ void Widget::keyPressEvent(QKeyEvent* event) {
                         int saved_i = i;
                         for (int k = i + 1; k < CELL_QUANTITY; k++) {
                             if (list[k][j] == 0) {
-                                int temp = list[saved_i][j];
-                                list[saved_i][j] = list[k][j];
-                                list[k][j] = temp;
+                                cellChanged = true;
+                                std::swap(list[saved_i][j], list[k][j]);
                                 saved_i++;
                             }
                         }
                     }  
                 }
-            }      
+            }
+            
+            for (int j = 0; j < CELL_QUANTITY; j++) {
+                for (int i = CELL_QUANTITY - 2; i > -1; i--) {
+
+                    if (list[i][j] == list[i + 1][j] && list[i][j] != 0) {
+                        cellChanged = true;
+                        list[i + 1][j] = 2 * list[i][j];
+                        list[i][j] = 0;
+                    }
+                }
+                for (int i = CELL_QUANTITY-1; i > 0; i--) {
+                    if (list[i][j] == 0) {
+                        std::swap(list[i - 1][j], list[i][j]);
+                    }
+                }
+
+            }
+            repaint();
+
         } 
         else if (event->key() == Qt::Key_W) {
             for (int i = 1; i < CELL_QUANTITY; i++) {
@@ -77,9 +108,8 @@ void Widget::keyPressEvent(QKeyEvent* event) {
                         int saved_i = i;
                         for (int k = i - 1; k > -1; k--) {
                             if (list[k][j] == 0) {
-                                int temp = list[saved_i][j];
-                                list[saved_i][j] = list[k][j];
-                                list[k][j] = temp;
+                                cellChanged = true;
+                                std::swap(list[saved_i][j], list[k][j]);
                                 saved_i--;
                             }
                         }
@@ -89,6 +119,25 @@ void Widget::keyPressEvent(QKeyEvent* event) {
                 }
 
             }
+            
+            for (int j = 0; j < CELL_QUANTITY; j++) {
+                for (int i = 1; i < CELL_QUANTITY; i++) {
+                
+                    if (list[i][j] == list[i-1][j] && list[i][j] != 0) {
+                        cellChanged = true;
+                        list[i-1][j] = 2 * list[i][j];
+                        list[i][j] = 0;
+                    }
+                }
+                for (int i = 0; i < CELL_QUANTITY-1; i++) {
+                    if (list[i][j] == 0) {
+                        std::swap(list[i+1][j], list[i][j]);
+                    }
+                }
+
+            }
+            repaint();
+
         }
         else if (event->key() == Qt::Key_D) {
             for (int i = 0; i < CELL_QUANTITY; i++) {
@@ -101,15 +150,31 @@ void Widget::keyPressEvent(QKeyEvent* event) {
                         int saved_j = j;
                         for (int k = j + 1; k < CELL_QUANTITY; k++) {
                             if (list[i][k] == 0) {
-                                int temp = list[i][saved_j];
-                                list[i][saved_j] = list[i][k];
-                                list[i][k] = temp;
+                                cellChanged = true;
+                                std::swap(list[i][saved_j], list[i][k]);
                                 saved_j++;
                             }
                         }
                     }
                 }
             }
+            
+            for (int i = 0; i < CELL_QUANTITY; i++) {
+                for(int j = CELL_QUANTITY - 1; j > 0; j--){
+                        if (list[i][j] == list[i][j - 1] && list[i][j] != 0) {
+                            cellChanged = true;
+                            list[i][j] = 2 * list[i][j - 1];
+                            list[i][j - 1] = 0;
+                        }
+                }
+                for (int j = CELL_QUANTITY - 1; j > 0; j--) {
+                    if (list[i][j] == 0) {
+                        std::swap(list[i][j], list[i][j - 1]);
+                    }
+                }
+                
+            }
+            repaint();
         }
         else if (event->key() == Qt::Key_A) {
             for (int i = 0; i < CELL_QUANTITY; i++) {
@@ -122,19 +187,43 @@ void Widget::keyPressEvent(QKeyEvent* event) {
                         int saved_j = j;
                         for (int k = j - 1; k > -1; k--) {
                             if (list[i][k] == 0) {
-                                int temp = list[i][saved_j];
-                                list[i][saved_j] = list[i][k];
-                                list[i][k] = temp;
+                                cellChanged = true;
+                                std::swap(list[i][k], list[i][saved_j]);
                                 saved_j--;
                             }
                         }
                     }
                 }
             }
-        }
+            
+            for (int i = 0; i < CELL_QUANTITY; i++) {
+                for (int j = 0; j < CELL_QUANTITY-1; j++) {
+                    if (list[i][j] == list[i][j + 1] && list[i][j]!=0) {
+                        cellChanged = true;
+                        list[i][j] = 2 * list[i][j + 1];
+                        list[i][j + 1] = 0;
+                    }
+                }
+                for (int j = 0; j < CELL_QUANTITY - 1; j++) {
+                    if (list[i][j] == 0) {
+                        std::swap(list[i][j], list[i][j + 1]);
+                    }
+                }
 
+            }
+            repaint();
+
+        }
+        
+
+        if (cellChanged) {
+            randOneCell();
+        }
+        
+        
     }
     repaint();
+    
 }
 
 void Widget::doPainting() {
@@ -164,8 +253,6 @@ void Widget::doPainting() {
     cell_X = 33;
 
 
-
-
     if (list.size()) {
         QFont font = cell.font();
         font.setPixelSize(48);
@@ -173,25 +260,19 @@ void Widget::doPainting() {
 
         for (int i = 0; i < CELL_QUANTITY; i++) {
             for (int j = 0; j < CELL_QUANTITY; j++) {
-                bool isTwo = false;
+                
                 if (list[i][j] == 0) {
                     continue;
                 }
-                QString num = QString::number(list[i][j]);
 
-                if (num == "2") {
-                    isTwo = true;
-                    cell.setPen(QColor(CELL_2));
-                    cell.setBrush(QBrush(QColor(CELL_2)));
-                }
-                else {
-                    cell.setPen(QColor(CELL_4));
-                    cell.setBrush(QBrush(QColor(CELL_4)));
-                }
+                QColor cellColor = QColor(CELL_COLORS[list[i][j]]);
+                cell.setPen(cellColor);
+                cell.setBrush(QBrush(cellColor));
+               
                 cell.drawRoundRect(cell_X + j * 122, cell_Y + i * 122, CELL_SIZE, CELL_SIZE, CELL_ROUNDED, CELL_ROUNDED);
                 cell.setPen(QColor(NUM_COLOR));
                 cell.setBrush(QBrush(QColor(NUM_COLOR)));
-                isTwo ? cell.drawText(cell_X + j * 122 + 37, cell_Y + i * 122 + 70, "2") : cell.drawText(cell_X + j * 122 + 37, cell_Y + i * 122 + 70, "4");
+                cell.drawText(cell_X + j * 122 + 37, cell_Y + i * 122 + 70, QString::number(list[i][j]));
             }
         }
     }
@@ -211,9 +292,20 @@ int Widget::randInt(int low, int high)
         return rand;
 }
 
+void Widget::randOneCell() {
+    int random_X = 0;
+    int random_Y = 0;
+    while (list[random_X][random_Y] != 0) {
+        random_X = randInt(0, 3);
+        random_Y = randInt(0, 3);
+    }
+    int num = randInt(0, 1);
+    list[random_X][random_Y] = num;
+    repaint();
+}
+
 void Widget::randCells() {
     setList();
-
     int random_X_1 = 0;
     int random_Y_1 = 0;
     int random_X_2 = 0;
@@ -232,9 +324,8 @@ void Widget::randCells() {
 
     list[random_X_1][random_Y_1] = first_num;
     list[random_X_2][random_Y_2] = second_num;
-        
-    repaint();
     isGameStarted = true;
+    repaint();
 }
 
 void Widget::setList() {
@@ -249,6 +340,8 @@ void Widget::setList() {
     }
 
 }
+
+
         
         
 

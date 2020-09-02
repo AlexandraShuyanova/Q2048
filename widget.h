@@ -34,17 +34,26 @@ private:
     const QString CELL_4 = "#dedc93";
     const QString CELL_8 = "#efa845";
     const QString CELL_16 = "#ee8244";
+    const QString CELL_32 = "#ee8244";
+    const QString CELL_64 = "#ee8244";
+    const QString CELL_128 = "#ee8244";
+    const QString CELL_256 = "#ee8244";
+    const QString CELL_512 = "#ee8244";
+    const QString CELL_1024 = "#ee8244";
+    const QString CELL_2048 = "#ee8244";
     const QString NUM_COLOR = "#000000";
     const int CELL_SIZE = 106;
     const int CELL_ROUNDED = 4;
     int cell_X = 33;
     int cell_Y = 168;
     bool isGameStarted = false;
+    QHash<int, QString> CELL_COLORS;
 
     Ui::Widget *ui;
     void doPainting();
     int randInt(int, int);
     void setList();
+    void randOneCell();
 
 private slots:
     void randCells();
